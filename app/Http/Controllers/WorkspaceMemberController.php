@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddWorkspaceMemberRequest;
+use App\Http\Requests\RemoveWorkspaceMemberRequest;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Services\WorkspaceService;
@@ -60,8 +61,15 @@ class WorkspaceMemberController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(RemoveWorkspaceMemberRequest $request, Workspace $workspace_member)
     {
-        //
+
+        $this->authorize('removeMember', $workspace_member);
+
+        $user = User::findOrFail($request->validated('user_id'));
+
+        $this->workspaceService->removeMember($workspace_member, $user);
+
+        return $this->successJson('Member removed successfully.');
     }
 }

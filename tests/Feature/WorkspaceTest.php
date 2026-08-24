@@ -201,4 +201,33 @@ class WorkspaceTest extends TestCase
             'workspace_id' => $workspace->id
         ]);
     }
+
+    public function test_owner_can_remove_member(): void
+    {
+        $owner = User::factory()->create();
+        $user = User::factory()->create();
+
+        $workspace = Workspace::factory()->create([
+            'owner_id' => $owner->id,
+        ]);
+
+        $this->actingAs($owner, 'web');
+
+        $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
+            'user_id' => $user->id
+        ]);
+
+        $response = $this->deleteJson("/api/v1/workspace-members/{$workspace->id}", [
+            'user_id' => $user->id
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('workspace_members', [
+            'workspace_id' => $workspace->id,
+            'user_id' => $user->id
+        ]);
+
+    }
 }

@@ -52,4 +52,12 @@ class WorkspaceService
             ]
         ]);
     }
+
+    public function removeMember(Workspace $workspace, User $user): void
+    {
+        if (!$workspace->members()->whereKey($user->id)->exists()) {
+            abort(404, 'User is not a member of this workspace.');
+        }
+        $workspace->members()->detach($user->id);
+    }
 }
