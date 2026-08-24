@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -34,14 +36,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function workspaces()
+    public function workspaces(): HasMany
     {
-        return $this->hasMany(WorkSpace::class, 'owner_id');
+        return $this->hasMany(Workspace::class, 'owner_id');
     }
 
-    public function memberWorkspaces()
+    public function memberWorkspaces(): BelongsToMany
     {
-        return $this->belongsToMany(WorkSpace::class, 'workspace_members')->withPivot('role', 'joined_at');
+        return $this->belongsToMany(Workspace::class, 'workspace_members')->withPivot('role', 'joined_at');
     }
     
 }

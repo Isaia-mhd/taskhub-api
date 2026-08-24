@@ -100,7 +100,7 @@ class WorkspaceTest extends TestCase
             "/api/v1/workspaces/{$workspace->id}"
         );
 
-        $response->assertStatus(404);
+        $response->assertStatus(403);
     }
 
     public function test_authenticated_user_can_update_workspace(): void
@@ -163,7 +163,8 @@ class WorkspaceTest extends TestCase
 
         $this->actingAs($owner, 'web');
 
-        $response = $this->postJson("/api/v1/workspaces/{$workspace->id}/add-member", [
+        $response = $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
             'user_id' => $user->id
         ]);
 
@@ -188,7 +189,8 @@ class WorkspaceTest extends TestCase
 
         $this->actingAs($notOwner, 'web');
 
-        $response = $this->postJson("/api/v1/workspaces/{$workspace->id}/add-member", [
+        $response = $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
             'user_id' => $user->id
         ]);
 

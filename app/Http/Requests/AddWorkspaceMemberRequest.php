@@ -23,6 +23,7 @@ class AddWorkspaceMemberRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'workspace_id' => 'required|string|exists:workspaces,id',
             'user_id' => 'required|string|exists:users,id'
         ];
     }

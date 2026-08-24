@@ -79,14 +79,4 @@ class WorkspaceController extends Controller
         return $this->successJson('Workspace deleted successfully.');
     }
 
-    public function addMember(AddWorkspaceMemberRequest $request, Workspace $workspace): JsonResponse
-    {
-        $this->authorize('addMember', $workspace);
-
-        $user = User::findOrFail($request->validated('user_id'));
-
-        $this->workspaceService->addMember($workspace, $user);
-
-        return $this->successJson('Member added successfully.');
-    }
 }
