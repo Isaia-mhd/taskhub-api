@@ -1,0 +1,154 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use App\Models\Workspace;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
+
+class WorkspaceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_get_workspaces(): void
+    {
+        $user = User::factory()->create();
+
+        Workspace::factory()->count(3)->create([
+            'owner_id' => $user->id,
+        ]);
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->getJson('/api/v1/workspaces');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'message',
+            'data',
+        ]);
+    }
+
+    public function test_guest_cannot_get_workspaces(): void
+    {
+        $response = $this->getJson('/api/v1/workspaces');
+
+        $response->assertStatus(401);
+    }
+
+    public function test_authenticated_user_can_create_workspace(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->postJson('/api/v1/workspaces', [
+            'name' => 'My Workspace',
+            'description' => 'My workspace description',
+        ]);
+
+        $response->assertStatus(201);
+
+        $response->assertJson([
+            'message' => 'Workspace created successfully.',
+        ]);
+
+        $this->assertDatabaseHas('workspaces', [
+            'owner_id' => $user->id,
+            'name' => 'My Workspace',
+            'description' => 'My workspace description',
+        ]);
+    }
+
+    public function test_authenticated_user_can_get_his_workspace(): void
+    {
+        $user = User::factory()->create();
+
+        $workspace = WorkSpace::factory()->create([
+            'owner_id' => $user->id,
+        ]);
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->getJson(
+            "/api/v1/workspaces/{$workspace->id}"
+        );
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'message' => 'A workspace loaded.',
+        ]);
+    }
+
+    public function test_user_cannot_get_workspace_owned_by_another_user(): void
+    {
+        $user = User::factory()->create();
+
+        $otherUser = User::factory()->create();
+
+        $workspace = WorkSpace::factory()->create([
+            'owner_id' => $otherUser->id,
+        ]);
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->getJson(
+            "/api/v1/workspaces/{$workspace->id}"
+        );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_authenticated_user_can_update_workspace(): void
+    {
+        $user = User::factory()->create();
+
+        $workspace = WorkSpace::factory()->create([
+            'owner_id' => $user->id,
+            'name' => 'Old name',
+        ]);
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->putJson(
+            "/api/v1/workspaces/{$workspace->id}",
+            [
+                'name' => 'New name',
+                'description' => 'Updated description',
+            ]
+        );
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('workspaces', [
+            'id' => $workspace->id,
+            'name' => 'New name',
+            'description' => 'Updated description',
+        ]);
+    }
+
+    public function test_authenticated_user_can_delete_workspace(): void
+    {
+        $user = User::factory()->create();
+
+        $workspace = WorkSpace::factory()->create([
+            'owner_id' => $user->id,
+        ]);
+
+        $this->actingAs($user, 'web');
+
+        $response = $this->deleteJson(
+            "/api/v1/workspaces/{$workspace->id}"
+        );
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('workspaces', [
+            'id' => $workspace->id,
+        ]);
+    }
+}

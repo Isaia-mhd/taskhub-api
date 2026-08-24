@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkspaceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::group(['middleware' => ['auth:sanctum', 'web'], 'prefix' => 'v1'], functi
     Route::delete('users/{user}', [UserController::class, 'destroy']);
     Route::put('users/{user}/avatar', [UserController::class, 'updateAvatar']);
 
+    Route::apiResource('workspaces', WorkspaceController::class);
 
 });
 

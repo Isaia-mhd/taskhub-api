@@ -33,4 +33,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function workspaces()
+    {
+        return $this->hasMany(WorkSpace::class, 'owner_id');
+    }
 }
