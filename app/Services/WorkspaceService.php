@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Repositories\WorkspaceRepo;
@@ -40,5 +41,15 @@ class WorkspaceService
     public function destroy(Workspace $workspace): bool
     {
         return $this->workspaceRepo->destroy($workspace);
+    }
+
+    public function addMember(Workspace $workspace, User $user): void
+    {
+        $workspace->members()->syncWithoutDetaching([
+            $user->id => [
+                'role' => UserRole::MEMBER->value,
+                'joined_at' => now()
+            ]
+        ]);
     }
 }

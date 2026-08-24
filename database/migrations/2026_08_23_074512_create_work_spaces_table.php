@@ -29,6 +29,8 @@ return new class extends Migration
             $table->enum('role', [UserRole::values()]);
             $table->timestamp('joined_at')->nullable();
             $table->timestamps();
+
+            $table->unique(['workspace_id', 'user_id']);
         });
     }
 
@@ -37,6 +39,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('workspace_members');
         Schema::dropIfExists('workspaces');
     }
 };

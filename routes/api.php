@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth:sanctum', 'web'], 'prefix' => 'v1'], functi
     Route::put('users/{user}/avatar', [UserController::class, 'updateAvatar']);
 
     Route::apiResource('workspaces', WorkspaceController::class);
+    Route::post('workspaces/{workspace}/add-member', [WorkspaceController::class, 'addMember']);
 
 });
 

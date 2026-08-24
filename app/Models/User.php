@@ -38,4 +38,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkSpace::class, 'owner_id');
     }
+
+    public function memberWorkspaces()
+    {
+        return $this->belongsToMany(WorkSpace::class, 'workspace_members')->withPivot('role', 'joined_at');
+    }
+    
 }

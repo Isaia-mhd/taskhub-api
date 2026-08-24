@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddWorkspaceMemberRequest;
 use App\Http\Requests\StoreWorkspaceRequest;
 use App\Http\Requests\UpdateWorkspaceRequest;
 use App\Http\Resources\WorkspaceResource;
+use App\Models\User;
 use App\Models\Workspace;
 use App\Services\WorkspaceService;
 use App\Traits\JsonResponseTrait;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class WorkspaceController extends Controller
 {
-    use JsonResponseTrait;
+    use JsonResponseTrait, AuthorizesRequests;
     public function __construct(private WorkspaceService $workspaceService){}
     /**
      * Display a listing of the resource.
@@ -69,5 +72,16 @@ class WorkspaceController extends Controller
         $this->workspaceService->destroy($workspace);
 
         return $this->successJson('Workspace deleted successfully.');
+    }
+
+    public function addMember(AddWorkspaceMemberRequest $request, Workspace $workspace): JsonResponse
+    {
+        $this->authorize('addMember', $workspace);
+
+        $user = User::findOrFail($request->validated('user_id'));
+
+        $this->workspaceService->addMember($workspace, $user);
+
+        return $this->successJson('Member added successfully.');
     }
 }

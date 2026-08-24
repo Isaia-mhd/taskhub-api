@@ -67,7 +67,7 @@ class WorkspaceTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $workspace = WorkSpace::factory()->create([
+        $workspace = Workspace::factory()->create([
             'owner_id' => $user->id,
         ]);
 
@@ -90,7 +90,7 @@ class WorkspaceTest extends TestCase
 
         $otherUser = User::factory()->create();
 
-        $workspace = WorkSpace::factory()->create([
+        $workspace = Workspace::factory()->create([
             'owner_id' => $otherUser->id,
         ]);
 
@@ -107,7 +107,7 @@ class WorkspaceTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $workspace = WorkSpace::factory()->create([
+        $workspace = Workspace::factory()->create([
             'owner_id' => $user->id,
             'name' => 'Old name',
         ]);
@@ -135,7 +135,7 @@ class WorkspaceTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $workspace = WorkSpace::factory()->create([
+        $workspace = Workspace::factory()->create([
             'owner_id' => $user->id,
         ]);
 
@@ -149,6 +149,54 @@ class WorkspaceTest extends TestCase
 
         $this->assertDatabaseMissing('workspaces', [
             'id' => $workspace->id,
+        ]);
+    }
+
+    public function test_owner_can_add_new_member(): void
+    {
+        $owner = User::factory()->create();
+        $user = User::factory()->create();
+
+        $workspace = Workspace::factory()->create([
+            'owner_id' => $owner->id,
+        ]);
+
+        $this->actingAs($owner, 'web');
+
+        $response = $this->postJson("/api/v1/workspaces/{$workspace->id}/add-member", [
+            'user_id' => $user->id
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('workspace_members', [
+            'workspace_id' => $workspace->id,
+            'user_id' => $user->id
+        ]);
+
+    }
+
+    public function test_only_owner_can_add_member(): void
+    {
+        $owner = User::factory()->create();
+        $user = User::factory()->create();
+        $notOwner = User::factory()->create();
+
+        $workspace = Workspace::factory()->create([
+            'owner_id' => $owner->id
+        ]);
+
+        $this->actingAs($notOwner, 'web');
+
+        $response = $this->postJson("/api/v1/workspaces/{$workspace->id}/add-member", [
+            'user_id' => $user->id
+        ]);
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing('workspace_members', [
+            'user_id' => $user->id,
+            'workspace_id' => $workspace->id
         ]);
     }
 }
