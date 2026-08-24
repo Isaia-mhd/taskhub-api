@@ -21,7 +21,7 @@ class WorkspacePolicy
      */
     public function view(User $user, Workspace $workspace): bool
     {
-        return false;
+        return $workspace->owner_id === $user->id;
     }
 
     /**
@@ -37,7 +37,7 @@ class WorkspacePolicy
      */
     public function update(User $user, Workspace $workspace): bool
     {
-        return false;
+        return $workspace->owner_id === $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class WorkspacePolicy
      */
     public function delete(User $user, Workspace $workspace): bool
     {
-        return false;
+        return $workspace->owner_id === $user->id;
     }
 
     /**

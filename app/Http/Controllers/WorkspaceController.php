@@ -48,6 +48,7 @@ class WorkspaceController extends Controller
      */
     public function show(Request $request, Workspace $workspace): JsonResponse
     {
+        $this->authorize('view', $workspace);
         return $this->successJson('A workspace loaded.', new WorkspaceResource($this->workspaceService->get($request->user(), $workspace)));
     }
 
@@ -56,6 +57,8 @@ class WorkspaceController extends Controller
      */
     public function update(UpdateWorkspaceRequest $request, Workspace $workspace): JsonResponse
     {
+        $this->authorize('update', $workspace);
+
         $data = $request->validated();
 
         return $this->successJson(
@@ -69,6 +72,8 @@ class WorkspaceController extends Controller
      */
     public function destroy(Workspace $workspace): JsonResponse
     {
+        $this->authorize('delete', $workspace);
+
         $this->workspaceService->destroy($workspace);
 
         return $this->successJson('Workspace deleted successfully.');
