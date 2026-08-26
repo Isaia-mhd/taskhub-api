@@ -60,4 +60,11 @@ class WorkspaceService
         }
         $workspace->members()->detach($user->id);
     }
+
+    public function changeMemberRole(Workspace $workspace, User $member, string $userRole): void
+    {
+        $workspace->members()->updateExistingPivot($member->id, [
+            'role' => $userRole
+        ]);
+    }
 }

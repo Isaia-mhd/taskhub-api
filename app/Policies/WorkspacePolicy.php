@@ -73,4 +73,9 @@ class WorkspacePolicy
     {
         return $workspace->owner_id === $user->id;
     }
+
+    public function changeMemberRole(User $user, Workspace $workspace): bool
+    {
+        return $workspace->owner_id === $user->id;
+    }
 }

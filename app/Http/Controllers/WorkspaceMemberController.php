@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddWorkspaceMemberRequest;
+use App\Http\Requests\ChangeWorkspaceMemberRoleRequest;
 use App\Http\Requests\RemoveWorkspaceMemberRequest;
 use App\Models\User;
 use App\Models\Workspace;
@@ -71,5 +72,14 @@ class WorkspaceMemberController extends Controller
         $this->workspaceService->removeMember($workspace_member, $user);
 
         return $this->successJson('Member removed successfully.');
+    }
+
+    public function changeMemberRole(ChangeWorkspaceMemberRoleRequest $request, Workspace $workspace, User $member): JsonResponse
+    {
+        $this->authorize('changeMemberRole', $workspace);
+
+       $this->workspaceService->changeMemberRole($workspace, $member, $request->validated(['role']));
+
+        return $this->successJson('Role changed successfully');
     }
 }

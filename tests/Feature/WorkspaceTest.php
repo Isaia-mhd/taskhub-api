@@ -230,4 +230,35 @@ class WorkspaceTest extends TestCase
         ]);
 
     }
+
+    public function test_owner_can_change_role_of_member(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+
+        $workspace = Workspace::factory()->create([
+            'owner_id' => $owner->id
+        ]);
+
+        $this->actingAs($owner, 'web');
+
+        $response = $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
+            'user_id' => $member->id
+        ]);
+
+        $response->assertStatus(200);
+
+        $response1 = $this->putJson("/api/v1/workspace-members/{$workspace->id}/members/{$member->id}/role", [
+            'role' => 'admin'
+        ]);
+
+        $this->assertDatabaseHas('workspace_members', [
+          'workspace_id' => $workspace->id,
+          'user_id' => $member->id,  
+          'role' => 'admin',  
+        ]);
+
+        $response1->assertStatus(200);
+    }
 }
