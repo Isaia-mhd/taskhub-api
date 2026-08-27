@@ -261,4 +261,46 @@ class WorkspaceTest extends TestCase
 
         $response1->assertStatus(200);
     }
+
+      public function test_owner_can_see_all_members(): void
+    {
+        $owner = User::factory()->create();
+        $member1 = User::factory()->create();
+        $member2 = User::factory()->create();
+
+        $workspace = Workspace::factory()->create([
+            'owner_id' => $owner->id
+        ]);
+
+        $this->actingAs($owner, 'web');
+
+        $response = $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
+            'user_id' => $member1->id
+        ]);
+
+        $response->assertStatus(200);
+
+        $response = $this->postJson("/api/v1/workspace-members", [
+            'workspace_id' => $workspace->id,
+            'user_id' => $member2->id
+        ]);
+
+        $response->assertStatus(200);
+
+        $response = $this->getJson("/api/v1/workspace-members/{$workspace->id}/members/");
+
+        $response->assertStatus(200);
+        
+        $this->assertDatabaseHas('workspace_members', [
+          'workspace_id' => $workspace->id,
+          'user_id' => $member1->id,
+        ]);
+
+        $this->assertDatabaseHas('workspace_members', [
+          'workspace_id' => $workspace->id,
+          'user_id' => $member2->id, 
+        ]);
+
+    }
 }

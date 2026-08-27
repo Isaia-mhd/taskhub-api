@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth:sanctum', 'web'], 'prefix' => 'v1'], functi
 
     Route::apiResource('workspaces', WorkspaceController::class);
     Route::apiResource('workspace-members', WorkspaceMemberController::class);
+    Route::get('workspace-members/{workspace}/members/', [WorkspaceMemberController::class, 'members']);
     Route::put('workspace-members/{workspace}/members/{member}/role', [WorkspaceMemberController::class, 'changeMemberRole']);
 
 });

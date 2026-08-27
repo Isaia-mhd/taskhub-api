@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddWorkspaceMemberRequest;
 use App\Http\Requests\ChangeWorkspaceMemberRoleRequest;
 use App\Http\Requests\RemoveWorkspaceMemberRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Services\WorkspaceService;
@@ -25,6 +26,15 @@ class WorkspaceMemberController extends Controller
     public function index()
     {
         //
+    }
+
+    public function members(Workspace $workspace): JsonResponse {
+        $members = $workspace->members()->paginate(10);
+
+        return $this->successJson(
+            'Workspace members loaded.',
+            UserResource::collection($members)
+        );
     }
 
     /**
