@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class WorkspaceTest extends TestCase
@@ -20,7 +21,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $user->id,
         ]);
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->getJson('/api/v1/workspaces');
 
@@ -43,7 +44,7 @@ class WorkspaceTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/v1/workspaces', [
             'name' => 'My Workspace',
@@ -71,7 +72,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $user->id,
         ]);
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->getJson(
             "/api/v1/workspaces/{$workspace->id}"
@@ -94,7 +95,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $otherUser->id,
         ]);
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->getJson(
             "/api/v1/workspaces/{$workspace->id}"
@@ -112,7 +113,7 @@ class WorkspaceTest extends TestCase
             'name' => 'Old name',
         ]);
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->putJson(
             "/api/v1/workspaces/{$workspace->id}",
@@ -139,7 +140,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $user->id,
         ]);
 
-        $this->actingAs($user, 'web');
+        Sanctum::actingAs($user);
 
         $response = $this->deleteJson(
             "/api/v1/workspaces/{$workspace->id}"
@@ -161,7 +162,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $owner->id,
         ]);
 
-        $this->actingAs($owner, 'web');
+        Sanctum::actingAs($owner);
 
         $response = $this->postJson("/api/v1/workspace-members", [
             'workspace_id' => $workspace->id,
@@ -187,7 +188,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $owner->id
         ]);
 
-        $this->actingAs($notOwner, 'web');
+        Sanctum::actingAs($notOwner);
 
         $response = $this->postJson("/api/v1/workspace-members", [
             'workspace_id' => $workspace->id,
@@ -211,7 +212,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $owner->id,
         ]);
 
-        $this->actingAs($owner, 'web');
+        Sanctum::actingAs($owner);
 
         $this->postJson("/api/v1/workspace-members", [
             'workspace_id' => $workspace->id,
@@ -240,7 +241,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $owner->id
         ]);
 
-        $this->actingAs($owner, 'web');
+        Sanctum::actingAs($owner);
 
         $response = $this->postJson("/api/v1/workspace-members", [
             'workspace_id' => $workspace->id,
@@ -272,7 +273,7 @@ class WorkspaceTest extends TestCase
             'owner_id' => $owner->id
         ]);
 
-        $this->actingAs($owner, 'web');
+        Sanctum::actingAs($owner);
 
         $response = $this->postJson("/api/v1/workspace-members", [
             'workspace_id' => $workspace->id,

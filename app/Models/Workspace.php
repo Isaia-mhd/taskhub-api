@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable('owner_id', 'name', 'description')]
 class Workspace extends Model
@@ -37,6 +38,11 @@ class Workspace extends Model
     public function members()
     {
         return $this->belongsToMany(User::class, 'workspace_members')->withPivot('role', 'joined_at');
+    }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(WorkspaceInvitation::class);
     }
 
     protected static function booted()

@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -31,13 +32,14 @@ class UserLoginRequest extends FormRequest
         ];
     }
 
-    public function authenticate()
+    public function authenticate(): User
     {
 
         $this->checkRateLimit();
 
+        $user = User::where('email', $this->input('email'))->first();
         
-        if (!Auth::attempt($this->only('email', 'password'))) {
+        if (!$user || !Hash::check($this->input('password'), $user->password)) {
 
             RateLimiter::hit($this->throttleKey(), $decaySeconds = 900);
 
@@ -47,6 +49,8 @@ class UserLoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        return $user;
 
     }
 

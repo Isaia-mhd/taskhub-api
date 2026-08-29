@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('task_id')->constrained('tasks')->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
+            $table->foreignId('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
             $table->text('body');
             $table->timestamp('edited_at')->nullable();
             $table->timestamps();

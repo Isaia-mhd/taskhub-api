@@ -35,13 +35,32 @@ class AuthTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->postJson('/api/v1/login', [
-            'email' => 'mohamed@example.com',
-            'password' => 'password123',
-        ]);
+        $response = $this
+            ->withHeader('Origin', 'http://localhost:5173')
+            ->postJson('/api/v1/login', [
+                'email' => 'mohamed@example.com',
+                'password' => 'password123',
+            ]);
 
         $response->assertStatus(200);
-        $this->assertAuthenticated('web');
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'user' => [
+                    'id',
+                    'name',
+                    'email',
+                ],
+                'token',
+                'token_type',
+            ],
+        ]);
+        $response->assertJson([
+            'data' => [
+                'token_type' => 'Bearer',
+            ],
+        ]);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
     }
 
     public function test_user_cannot_login_with_wrong_password(): void
@@ -57,22 +76,26 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $this->assertGuest('web');
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function test_authenticated_user_can_get_his_profile(): void
     {
         $user = User::factory()->create();
 
+        $token = $user->createToken('test-token')->plainTextToken;
+
         $response = $this
-            ->actingAs($user, 'web')
+            ->withHeader('Authorization', "Bearer {$token}")
             ->getJson('/api/v1/user');
 
         $response->assertStatus(200);
 
         $response->assertJson([
-            'id' => $user->id,
-            'email' => $user->email,
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+            ],
         ]);
     }
 
@@ -86,16 +109,15 @@ class AuthTest extends TestCase
     public function test_user_can_logout(): void
     {
         $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
 
-        $this->actingAs($user, 'web');
-
-        $this->assertAuthenticated('web');
-
-        $response = $this->postJson('/api/v1/logout');
+        $response = $this
+            ->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/logout');
 
         $response->assertStatus(200);
 
-        $this->assertGuest('web');
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function test_complete_authentication_flow(): void
@@ -105,11 +127,6 @@ class AuthTest extends TestCase
             'password' => Hash::make('@Password123'),
         ]);
 
-        // Get CSRF cookie
-        $csrfResponse = $this->get('/sanctum/csrf-cookie');
-
-        $csrfResponse->assertStatus(204);
-
         // Login
         $loginResponse = $this->postJson('/api/v1/login', [
             'email' => 'mohamed@example.com',
@@ -117,24 +134,37 @@ class AuthTest extends TestCase
         ]);
 
         $loginResponse->assertStatus(200);
-
-        $this->assertAuthenticated('web');
+        $token = $loginResponse->json('data.token');
+        $this->assertIsString($token);
 
         // Access authenticated endpoint
-        $userResponse = $this->getJson('/api/v1/user');
+        $userResponse = $this
+            ->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user');
 
         $userResponse->assertStatus(200);
 
         $userResponse->assertJson([
-            'id' => $user->id,
-            'email' => $user->email,
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+            ],
         ]);
 
         // Logout
-        $logoutResponse = $this->postJson('/api/v1/logout');
+        $logoutResponse = $this
+            ->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/logout');
 
         $logoutResponse->assertStatus(200);
 
-        $this->assertGuest('web');
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+        $this->app['auth']->forgetGuards();
+
+        $loggedOutResponse = $this
+            ->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user');
+
+        $loggedOutResponse->assertStatus(401);
     }
 }

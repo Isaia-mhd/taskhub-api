@@ -4,27 +4,29 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserLoginRequest;
+use App\Http\Resources\UserResource;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     use JsonResponseTrait;
     public function login(UserLoginRequest $request): JsonResponse
     {
-        $request->authenticate();
-        $request->session()->regenerate();
+        $user = $request->authenticate();
+        $tokenName = $request->userAgent() ?: $user->name;
 
-        return $this->successJson('Connected with success', $request->user());
+        return $this->successJson('Connected with success', [
+            'user' => new UserResource($user),
+            'token' => $user->createToken($tokenName)->plainTextToken,
+            'token_type' => 'Bearer',
+        ]);
     }   
 
     public function logout(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()?->currentAccessToken()?->delete();
 
         return $this->successJson('Disconnected with success');
     }

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignUuid('workspace_id')->constrained('workspaces')->cascadeOnDelete();
             $table->foreignUuid('list_id')->constrained('task_lists')->cascadeOnDelete();
             $table->foreignUuid('parent_id')->constrained('tasks')->cascadeOnDelete();
-            $table->foreignUuid('status_id')->constrained('statuses')->cascadeOnDelete();
+            $table->foreignId('status_id')->constrained('statuses')->cascadeOnDelete();
             $table->foreignUuid('creator_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('priority_id')->constrained('priorities')->cascadeOnDelete();
+            $table->foreignId('priority_id')->constrained('priorities')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('start_at')->nullable();
