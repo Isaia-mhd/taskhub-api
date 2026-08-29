@@ -23,8 +23,9 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
 
     // Users
     Route::get('/user', function (Request $request) {
+        $user = $request->user()->load('workspaces');
         return response()->json([
-            'user' => new UserResource($request->user())
+            'user' => new UserResource($user)
         ]);
     });
     Route::post('/logout', [AuthController::class, 'logout']);

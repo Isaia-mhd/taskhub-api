@@ -20,7 +20,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'avatar' => $this->avatar,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
+            'workspaces' => WorkspaceResource::collection($this->whenLoaded('workspaces'))
         ];
     }
 }

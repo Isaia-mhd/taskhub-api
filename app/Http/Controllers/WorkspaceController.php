@@ -48,6 +48,10 @@ class WorkspaceController extends Controller
      */
     public function show(Request $request, Workspace $workspace): JsonResponse
     {
+        if(!$workspace)
+        {
+            return $this->errorJson('Workspace not found.', null, 404);   
+        }
         $this->authorize('view', $workspace);
         return $this->successJson('A workspace loaded.', new WorkspaceResource($this->workspaceService->get($request->user(), $workspace)));
     }
