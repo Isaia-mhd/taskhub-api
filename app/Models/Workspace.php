@@ -51,4 +51,9 @@ class Workspace extends Model
             $workspace->slug = self::generateSlug($workspace->name);
         });
     }
+
+    public function spaces(): HasMany
+    {
+        return $this->hasMany(Space::class);
+    }
 }

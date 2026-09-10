@@ -53,7 +53,8 @@ class WorkspaceController extends Controller
             return $this->errorJson('Workspace not found.', null, 404);   
         }
         $this->authorize('view', $workspace);
-        return $this->successJson('A workspace loaded.', new WorkspaceResource($this->workspaceService->get($request->user(), $workspace)));
+        $data = $this->workspaceService->get($request->user(), $workspace)->load('spaces');
+        return $this->successJson('A workspace loaded.', new WorkspaceResource($data));
     }
 
     /**

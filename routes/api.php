@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
@@ -23,7 +24,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
 
     // Users
     Route::get('/user', function (Request $request) {
-        $user = $request->user()->load('workspaces');
+        $user = $request->user()->load('workspaces.spaces');
+
         return response()->json([
             'user' => new UserResource($user)
         ]);
@@ -44,4 +46,8 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::post('invitations/{invitation:token}/reject', [WorkspaceInvitationController::class, 'reject']);
     Route::post('invitations/{invitation}/cancel', [WorkspaceInvitationController::class, 'cancel']);
     Route::post('invitations/{invitation}/resend', [WorkspaceInvitationController::class, 'resend']);
+
+
+    Route::apiResource('spaces', SpaceController::class);
+
 });
