@@ -56,4 +56,19 @@ class Workspace extends Model
     {
         return $this->hasMany(Space::class);
     }
+
+    public function statuses(): HasMany
+    {
+        return $this->hasMany(Status::class);
+    }
+
+    public function priorities(): HasMany
+    {
+        return $this->hasMany(Priority::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
 }

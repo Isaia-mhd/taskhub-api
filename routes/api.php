@@ -3,7 +3,10 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskListController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
@@ -56,6 +59,25 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::get('spaces/{space}/folders', [FolderController::class, 'getBySpace']);
     Route::patch('spaces/{space}/folders/reorder', [FolderController::class, 'reorder']);
 
+
+    Route::apiResource('statuses', StatusController::class)->except('index');
+    Route::get('workspaces/{workspace}/statuses', [StatusController::class, 'getByWorkspace']);
+    Route::patch('workspaces/{workspace}/statuses/reorder', [StatusController::class, 'reorder']);
+
+    Route::apiResource('priorities', PriorityController::class)->except('index');
+    Route::get('workspaces/{workspace}/priorities', [PriorityController::class, 'getByWorkspace']);
+    Route::patch('workspaces/{workspace}/priorities/reorder', [PriorityController::class, 'reorder']);
+
+    Route::apiResource('tasks', TaskController::class)->except('index');
+    Route::get('task-lists/{taskList}/tasks', [TaskController::class, 'getByTaskList']);
+    Route::patch('task-lists/{taskList}/tasks/reorder', [TaskController::class, 'reorder']);
+    Route::patch('tasks/{task}/move', [TaskController::class, 'move']);
+    Route::patch('tasks/{task}/status', [TaskController::class, 'changeStatus']);
+    Route::patch('tasks/{task}/priority', [TaskController::class, 'changePriority']);
+    Route::patch('tasks/{task}/start-date', [TaskController::class, 'updateStartDate']);
+    Route::patch('tasks/{task}/due-date', [TaskController::class, 'updateDueDate']);
+    Route::patch('tasks/{task}/complete', [TaskController::class, 'complete']);
+    
     Route::apiResource('task-lists', TaskListController::class)->except('index')->parameters(['task-lists' => 'taskList']);
     Route::get('spaces/{space}/task-lists', [TaskListController::class, 'getBySpace']);
     Route::get('folders/{folder}/task-lists', [TaskListController::class, 'getByFolder']);
