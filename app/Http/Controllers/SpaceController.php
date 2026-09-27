@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GenericWorkspaceRequest;
+use App\Http\Requests\ReorderSpaceRequest;
 use App\Http\Requests\StoreSpaceRequest;
+use App\Http\Requests\UpdateSpaceRequest;
 use App\Http\Resources\SpaceResource;
 use App\Http\Resources\WorkspaceResource;
 use App\Services\SpaceService;
@@ -19,9 +22,14 @@ class SpaceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function getByWorkspace(string $workspace)
     {
-        //
+        $spaces = $this->spaceService->getByWorkspace($workspace);
+         
+        return $this->successJson(
+            'Spaces retrieved successfully.', 
+            SpaceResource::collection($spaces->load('workspace'))
+        );
     }
 
     /**
@@ -43,24 +51,47 @@ class SpaceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $space): JsonResponse
     {
-        //
+        $space = $this->spaceService->getById($space);
+
+        return $this->successJson(
+            'Space retrieved successfully.', 
+            new SpaceResource($space->load('workspace'))
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateSpaceRequest $request, string $space): JsonResponse
     {
-        //
+        $validated = $request->validated();
+
+        $updatedSpace = $this->spaceService->update($space, $validated);
+
+        return $this->successJson(
+            'Space updated successfully.', 
+            new SpaceResource($updatedSpace->load('workspace'))
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $space): JsonResponse
     {
-        //
+        $this->spaceService->destroy($space);
+
+        return $this->successJson('Space deleted successfully.');
+    }
+
+    public function reorder(ReorderSpaceRequest $request, string $workspace): JsonResponse
+    {
+        $data = $request->validated();
+
+        $this->spaceService->reorder($workspace, $data);
+
+        return $this->successJson('Space reordered successfully.');
     }
 }

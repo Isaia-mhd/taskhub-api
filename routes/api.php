@@ -46,8 +46,9 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::post('invitations/{invitation:token}/reject', [WorkspaceInvitationController::class, 'reject']);
     Route::post('invitations/{invitation}/cancel', [WorkspaceInvitationController::class, 'cancel']);
     Route::post('invitations/{invitation}/resend', [WorkspaceInvitationController::class, 'resend']);
-
-
     Route::apiResource('spaces', SpaceController::class);
 
-});
+
+    });
+    Route::get('workspaces/{workspace}/spaces', [SpaceController::class, 'getByWorkspace']);
+    Route::patch('workspaces/{workspace}/spaces/reorder', [SpaceController::class, 'reorder']);

@@ -21,9 +21,14 @@ class WorkspaceRepo
         return Workspace::ownedBy($user->id)->paginate(10);
     }
 
-    public function get(User $user, Workspace $workspace): Workspace
+    public function get(User $user, string $workspace): ?Workspace
     {
-        return Workspace::ownedBy($user->id)->id($workspace->id)->firstOrFail();
+        return Workspace::ownedBy($user->id)->id($workspace)->first();
+    }
+
+    public function getById(string $workspaceId): ?Workspace
+    {
+        return Workspace::find($workspaceId);
     }
 
     public function store(User $user, array $data): Workspace

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
+use App\Exceptions\ResourceNotFoundException;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Repositories\WorkspaceRepo;
@@ -22,9 +23,22 @@ class WorkspaceService
         return $this->workspaceRepo->getAll($user);
     }
 
-    public function get(User $user, Workspace $workspaceId): Workspace
+    public function get(User $user, string $workspaceId): ?Workspace
     {
+        $workspace = $this->workspaceRepo->getById($workspaceId);
+        
+        if(!$workspace) throw new ResourceNotFoundException("Workspace not found.");
+
         return $this->workspaceRepo->get($user, $workspaceId);
+    }
+
+    public function getById(string $workspaceId): Workspace
+    {
+        $workspace = $this->workspaceRepo->getById($workspaceId);
+
+        if(!$workspace) throw new ResourceNotFoundException("Workspace not found.");
+
+        return $workspace;
     }
 
     public function store(User $user, array $data): Workspace

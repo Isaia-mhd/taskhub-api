@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSpaceRequest extends FormRequest
+class ReorderSpaceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +23,7 @@ class StoreSpaceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'workspace_id' => 'required|string',
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'color' => 'nullable|string',
-            'icon' => 'nullable|string',
-            'position' => 'nullable|integer',
+            'spaces' => 'array'
         ];
     }
 }

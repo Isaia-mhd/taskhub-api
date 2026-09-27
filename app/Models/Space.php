@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Space extends Model
 {
-    protected $guarded = ['id'];
     use HasUuids;
+    
+    protected $guarded = ['id'];
     public $incrementing = false;
     protected $keyType = 'string';
 
