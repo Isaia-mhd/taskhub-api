@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\FolderController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\TaskListController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
@@ -47,8 +49,15 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::post('invitations/{invitation}/cancel', [WorkspaceInvitationController::class, 'cancel']);
     Route::post('invitations/{invitation}/resend', [WorkspaceInvitationController::class, 'resend']);
     Route::apiResource('spaces', SpaceController::class);
-
-
-    });
     Route::get('workspaces/{workspace}/spaces', [SpaceController::class, 'getByWorkspace']);
     Route::patch('workspaces/{workspace}/spaces/reorder', [SpaceController::class, 'reorder']);
+    
+    Route::apiResource('folders', FolderController::class)->except('index');
+    Route::get('spaces/{space}/folders', [FolderController::class, 'getBySpace']);
+    Route::patch('spaces/{space}/folders/reorder', [FolderController::class, 'reorder']);
+
+    Route::apiResource('task-lists', TaskListController::class)->except('index')->parameters(['task-lists' => 'taskList']);
+    Route::get('spaces/{space}/task-lists', [TaskListController::class, 'getBySpace']);
+    Route::get('folders/{folder}/task-lists', [TaskListController::class, 'getByFolder']);
+    Route::patch('spaces/{space}/task-lists/reorder', [TaskListController::class, 'reorder']);
+});
