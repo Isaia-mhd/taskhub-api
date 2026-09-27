@@ -28,7 +28,7 @@ class SpaceController extends Controller
          
         return $this->successJson(
             'Spaces retrieved successfully.', 
-            SpaceResource::collection($spaces->load('workspace'))
+            SpaceResource::collection($spaces->load(['workspace', 'folders']))
         );
     }
 
@@ -57,7 +57,7 @@ class SpaceController extends Controller
 
         return $this->successJson(
             'Space retrieved successfully.', 
-            new SpaceResource($space->load('workspace'))
+            new SpaceResource($space->load(['workspace', 'folders']))
         );
     }
 
@@ -72,7 +72,7 @@ class SpaceController extends Controller
 
         return $this->successJson(
             'Space updated successfully.', 
-            new SpaceResource($updatedSpace->load('workspace'))
+            new SpaceResource($updatedSpace->load(['workspace', 'folders']))
         );
     }
 

@@ -25,7 +25,7 @@ class SpaceResource extends JsonResource
                 'id' => $this->workspace->id,
                 'name' => $this->workspace->name
             ]),
-            'folders' => []
+            'folders' => FolderResource::collection($this->whenLoaded('folders'))
         ];
     }
 }
