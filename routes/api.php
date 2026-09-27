@@ -6,6 +6,7 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskListController;
 use App\Http\Controllers\UserController;
@@ -67,6 +68,9 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::apiResource('priorities', PriorityController::class)->except('index');
     Route::get('workspaces/{workspace}/priorities', [PriorityController::class, 'getByWorkspace']);
     Route::patch('workspaces/{workspace}/priorities/reorder', [PriorityController::class, 'reorder']);
+
+    Route::apiResource('tags', TagController::class)->except('index');
+    Route::get('workspaces/{workspace}/tags', [TagController::class, 'getByWorkspace']);
 
     Route::apiResource('tasks', TaskController::class)->except('index');
     Route::get('task-lists/{taskList}/tasks', [TaskController::class, 'getByTaskList']);
