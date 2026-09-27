@@ -24,7 +24,6 @@ Route::group(['middleware' => ['throttle:6,1'], 'prefix' => 'v1'], function () {
     Route::get('/invitations/{invitation:token}', [WorkspaceInvitationController::class, 'show']);
 });
 
-
 Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     // Protected routes go here
 
@@ -33,7 +32,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
         $user = $request->user()->load('workspaces.spaces');
 
         return response()->json([
-            'user' => new UserResource($user)
+            'user' => new UserResource($user),
         ]);
     });
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -55,11 +54,10 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::apiResource('spaces', SpaceController::class);
     Route::get('workspaces/{workspace}/spaces', [SpaceController::class, 'getByWorkspace']);
     Route::patch('workspaces/{workspace}/spaces/reorder', [SpaceController::class, 'reorder']);
-    
+
     Route::apiResource('folders', FolderController::class)->except('index');
     Route::get('spaces/{space}/folders', [FolderController::class, 'getBySpace']);
     Route::patch('spaces/{space}/folders/reorder', [FolderController::class, 'reorder']);
-
 
     Route::apiResource('statuses', StatusController::class)->except('index');
     Route::get('workspaces/{workspace}/statuses', [StatusController::class, 'getByWorkspace']);
@@ -81,7 +79,23 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::patch('tasks/{task}/start-date', [TaskController::class, 'updateStartDate']);
     Route::patch('tasks/{task}/due-date', [TaskController::class, 'updateDueDate']);
     Route::patch('tasks/{task}/complete', [TaskController::class, 'complete']);
-    
+
+    Route::get('tasks/{task}/subtasks', [TaskController::class, 'getSubtasks']);
+    Route::post('tasks/{task}/subtasks', [TaskController::class, 'storeSubtask']);
+    Route::get('tasks/{task}/subtasks/{subtask}', [TaskController::class, 'showSubtask']);
+    Route::match(['put', 'patch'], 'tasks/{task}/subtasks/{subtask}', [TaskController::class, 'updateSubtask']);
+    Route::delete('tasks/{task}/subtasks/{subtask}', [TaskController::class, 'destroySubtask']);
+
+    Route::get('tasks/{task}/assignees', [TaskController::class, 'getAssignees']);
+    Route::post('tasks/{task}/assignees', [TaskController::class, 'assignUser']);
+    Route::post('tasks/{task}/assignees/bulk', [TaskController::class, 'assignUsers']);
+    Route::delete('tasks/{task}/assignees/{user}', [TaskController::class, 'removeAssignee']);
+
+    Route::get('tasks/{task}/tags', [TaskController::class, 'getTags']);
+    Route::post('tasks/{task}/tags', [TaskController::class, 'attachTag']);
+    Route::post('tasks/{task}/tags/bulk', [TaskController::class, 'attachTags']);
+    Route::delete('tasks/{task}/tags/{tag}', [TaskController::class, 'removeTag']);
+
     Route::apiResource('task-lists', TaskListController::class)->except('index')->parameters(['task-lists' => 'taskList']);
     Route::get('spaces/{space}/task-lists', [TaskListController::class, 'getBySpace']);
     Route::get('folders/{folder}/task-lists', [TaskListController::class, 'getByFolder']);

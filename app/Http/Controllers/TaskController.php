@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AssignTaskUserRequest;
+use App\Http\Requests\AssignTaskUsersRequest;
+use App\Http\Requests\AttachTaskTagRequest;
+use App\Http\Requests\AttachTaskTagsRequest;
 use App\Http\Requests\ChangeTaskPriorityRequest;
 use App\Http\Requests\ChangeTaskStatusRequest;
 use App\Http\Requests\MoveTaskRequest;
 use App\Http\Requests\ReorderTaskRequest;
+use App\Http\Requests\StoreSubtaskRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskDateRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\TagResource;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\UserResource;
 use App\Services\TaskService;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -127,6 +133,114 @@ class TaskController extends Controller
             'Task completed successfully.',
             new TaskResource($task->load(['taskList', 'status', 'priority', 'creator']))
         );
+    }
+
+    public function getSubtasks(string $task): JsonResponse
+    {
+        $subtasks = $this->taskService->getSubtasks($task);
+
+        return $this->successJson(
+            'Subtasks retrieved successfully.',
+            TaskResource::collection($subtasks->load(['taskList', 'status', 'priority', 'creator']))
+        );
+    }
+
+    public function storeSubtask(StoreSubtaskRequest $request, string $task): JsonResponse
+    {
+        $subtask = $this->taskService->storeSubtask($request->user(), $task, $request->validated());
+
+        return $this->successJson(
+            'Subtask stored successfully.',
+            new TaskResource($subtask->load(['taskList', 'status', 'priority', 'creator'])),
+            201
+        );
+    }
+
+    public function showSubtask(string $task, string $subtask): JsonResponse
+    {
+        $subtask = $this->taskService->getSubtask($task, $subtask);
+
+        return $this->successJson(
+            'Subtask retrieved successfully.',
+            new TaskResource($subtask->load(['taskList', 'status', 'priority', 'creator']))
+        );
+    }
+
+    public function updateSubtask(UpdateTaskRequest $request, string $task, string $subtask): JsonResponse
+    {
+        $subtask = $this->taskService->updateSubtask($task, $subtask, $request->validated());
+
+        return $this->successJson(
+            'Subtask updated successfully.',
+            new TaskResource($subtask->load(['taskList', 'status', 'priority', 'creator']))
+        );
+    }
+
+    public function destroySubtask(string $task, string $subtask): JsonResponse
+    {
+        $this->taskService->destroySubtask($task, $subtask);
+
+        return $this->successJson('Subtask deleted successfully.');
+    }
+
+    public function getAssignees(string $task): JsonResponse
+    {
+        return $this->successJson(
+            'Task assignees retrieved successfully.',
+            UserResource::collection($this->taskService->getAssignees($task))
+        );
+    }
+
+    public function assignUser(AssignTaskUserRequest $request, string $task): JsonResponse
+    {
+        $this->taskService->assignUser($task, $request->validated()['user_id']);
+
+        return $this->successJson('User assigned successfully.');
+    }
+
+    public function assignUsers(AssignTaskUsersRequest $request, string $task): JsonResponse
+    {
+        $this->taskService->assignUsers($task, $request->validated()['user_ids']);
+
+        return $this->successJson('Users assigned successfully.');
+    }
+
+    public function removeAssignee(string $task, string $user): JsonResponse
+    {
+        $this->taskService->removeAssignee($task, $user);
+
+        return $this->successJson('User removed from task successfully.');
+    }
+
+    public function getTags(string $task): JsonResponse
+    {
+        $tags = $this->taskService->getTags($task);
+
+        return $this->successJson(
+            'Task tags retrieved successfully.',
+            TagResource::collection($tags->load('workspace'))
+        );
+    }
+
+    public function attachTag(AttachTaskTagRequest $request, string $task): JsonResponse
+    {
+        $this->taskService->attachTag($task, $request->validated()['tag_id']);
+
+        return $this->successJson('Tag added to task successfully.');
+    }
+
+    public function attachTags(AttachTaskTagsRequest $request, string $task): JsonResponse
+    {
+        $this->taskService->attachTags($task, $request->validated()['tag_ids']);
+
+        return $this->successJson('Tags added to task successfully.');
+    }
+
+    public function removeTag(string $task, int $tag): JsonResponse
+    {
+        $this->taskService->removeTag($task, $tag);
+
+        return $this->successJson('Tag removed from task successfully.');
     }
 
     public function reorder(ReorderTaskRequest $request, string $taskList): JsonResponse

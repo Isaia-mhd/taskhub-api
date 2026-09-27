@@ -19,9 +19,10 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasUuids;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     /**
@@ -56,5 +57,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkspaceInvitation::class, 'user_id');
     }
-    
+
+    public function assignedTasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'task_assignees')
+            ->withPivot('assigned_at')
+            ->withTimestamps();
+    }
 }
