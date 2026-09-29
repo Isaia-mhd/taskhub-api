@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -32,41 +34,41 @@ class UserLoginRequest extends FormRequest
         ];
     }
 
-    public function authenticate(): User
-    {
+    // public function authenticate(): User | JsonResponse
+    // {
 
-        $this->checkRateLimit();
+    //     $this->checkRateLimit();
 
-        $user = User::where('email', $this->input('email'))->first();
+    //     // $user = User::where('email', $this->input('email'))->first();
         
-        if (!$user || !Hash::check($this->input('password'), $user->password)) {
+    //     if (!Auth::attempt([$this->input('email'), $this->input('password')])) {
 
-            RateLimiter::hit($this->throttleKey(), $decaySeconds = 900);
+    //         RateLimiter::hit($this->throttleKey(), $decaySeconds = 900);
 
-            throw ValidationException::withMessages([
-                'email' => 'Incorrect credentials.',
-            ]);
-        }
+    //         return response()->json([
+    //             'Invalid credentials.'
+    //         ], 403);
+    //     }
 
-        RateLimiter::clear($this->throttleKey());
+    //     RateLimiter::clear($this->throttleKey());
 
-        return $user;
+    //     return Auth::user();
 
-    }
+    // }
 
-    public function checkRateLimit()
-    {
-        if(RateLimiter::tooManyAttempts($this->throttleKey(), 5)){
-            $seconds = RateLimiter::availableIn($this->throttleKey());
+    // public function checkRateLimit()
+    // {
+    //     if(RateLimiter::tooManyAttempts($this->throttleKey(), 5)){
+    //         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'email' => 'Too many attemps. Try again in ' . $seconds . ' seconds.'
-            ]);
-        }
-    }
+    //         throw ValidationException::withMessages([
+    //             'email' => 'Too many attemps. Try again in ' . $seconds . ' seconds.'
+    //         ]);
+    //     }
+    // }
 
-    public function throttleKey()
-    {
-        return strtolower($this->input('email') . '|' . $this->ip());
-    }
+    // public function throttleKey()
+    // {
+    //     return strtolower($this->input('email') . '|' . $this->ip());
+    // }
 }

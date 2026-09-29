@@ -8,25 +8,34 @@ use App\Http\Resources\UserResource;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     use JsonResponseTrait;
     public function login(UserLoginRequest $request): JsonResponse
     {
-        $user = $request->authenticate();
-        $tokenName = $request->userAgent() ?: $user->name;
+        $validated = $request->validated();
 
-        return $this->successJson('Connected with success', [
-            'user' => new UserResource($user),
-            'token' => $user->createToken($tokenName)->plainTextToken,
-            'token_type' => 'Bearer',
-        ]);
+        if(!Auth::attempt($validated))
+        {
+            return $this->errorJson('Invalid credentials', null, 422);
+        }
+
+        $request->session()->regenerate();
+
+        return $this->successJson(
+            'Connected with success',
+            new UserResource(Auth::user())
+        );
     }   
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()?->currentAccessToken()?->delete();
+        // Auth::logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return $this->successJson('Disconnected with success');
     }
