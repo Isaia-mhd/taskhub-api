@@ -46,7 +46,7 @@ class WorkspaceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request,string  $workspace): JsonResponse
+    public function show(Request $request, Workspace  $workspace): JsonResponse
     {
         $this->authorize('view', $workspace);
         $data = $this->workspaceService->get($request->user(), $workspace)->load('spaces');

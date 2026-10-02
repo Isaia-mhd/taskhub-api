@@ -23,13 +23,13 @@ class WorkspaceService
         return $this->workspaceRepo->getAll($user);
     }
 
-    public function get(User $user, string $workspaceId): ?Workspace
+    public function get(User $user, Workspace $workspace): ?Workspace
     {
-        $workspace = $this->workspaceRepo->getById($workspaceId);
+        $workspace = $this->workspaceRepo->getById($workspace->id);
         
         if(!$workspace) throw new ResourceNotFoundException("Workspace not found.");
 
-        return $this->workspaceRepo->get($user, $workspaceId);
+        return $this->workspaceRepo->get($user, $workspace->id);
     }
 
     public function getById(string $workspaceId): Workspace
