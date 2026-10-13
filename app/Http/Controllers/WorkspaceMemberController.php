@@ -28,7 +28,9 @@ class WorkspaceMemberController extends Controller
         //
     }
 
-    public function members(Workspace $workspace): JsonResponse {
+    public function members(Request $request, Workspace $workspace): JsonResponse {
+        $this->authorize('view', $workspace);
+
         $members = $workspace->members()->paginate(10);
 
         return $this->successJson(
@@ -61,6 +63,18 @@ class WorkspaceMemberController extends Controller
         //
     }
 
+    public function showMember(Request $request, Workspace $workspace, User $member): JsonResponse
+    {
+        $this->authorize('view', $workspace);
+
+        $member = $workspace->members()->whereKey($member->id)->firstOrFail();
+
+        return $this->successJson(
+            'Workspace member loaded.',
+            new UserResource($member)
+        );
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -87,6 +101,8 @@ class WorkspaceMemberController extends Controller
     public function changeMemberRole(ChangeWorkspaceMemberRoleRequest $request, Workspace $workspace, User $member): JsonResponse
     {
         $this->authorize('changeMemberRole', $workspace);
+
+        abort_unless($workspace->members()->whereKey($member->id)->exists(), 404, 'User is not a member of this workspace.');
 
        $this->workspaceService->changeMemberRole($workspace, $member, $request->validated(['role']));
 

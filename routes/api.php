@@ -47,6 +47,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::post('workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store']);
     Route::apiResource('workspace-members', WorkspaceMemberController::class);
     Route::get('workspace-members/{workspace}/members/', [WorkspaceMemberController::class, 'members']);
+    Route::get('workspace-members/{workspace}/members/{member}', [WorkspaceMemberController::class, 'showMember']);
     Route::put('workspace-members/{workspace}/members/{member}/role', [WorkspaceMemberController::class, 'changeMemberRole']);
 
     Route::post('invitations/{invitation:token}/accept', [WorkspaceInvitationController::class, 'accept']);

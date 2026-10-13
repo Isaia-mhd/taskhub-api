@@ -304,4 +304,35 @@ class WorkspaceTest extends TestCase
         ]);
 
     }
+
+    public function test_owner_can_show_a_workspace_member(): void
+    {
+        $owner = User::factory()->create();
+        $member = User::factory()->create();
+        $workspace = Workspace::factory()->create(['owner_id' => $owner->id]);
+
+        Sanctum::actingAs($owner);
+
+        $this->postJson('/api/v1/workspace-members', [
+            'workspace_id' => $workspace->id,
+            'user_id' => $member->id,
+        ])->assertOk();
+
+        $this->getJson("/api/v1/workspace-members/{$workspace->id}/members/{$member->id}")
+            ->assertOk()
+            ->assertJsonPath('data.id', $member->id)
+            ->assertJsonPath('data.role', 'member');
+    }
+
+    public function test_owner_cannot_show_a_user_who_is_not_a_workspace_member(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $workspace = Workspace::factory()->create(['owner_id' => $owner->id]);
+
+        Sanctum::actingAs($owner);
+
+        $this->getJson("/api/v1/workspace-members/{$workspace->id}/members/{$otherUser->id}")
+            ->assertNotFound();
+    }
 }

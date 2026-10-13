@@ -29,9 +29,9 @@ class WorkspaceInvitationResource extends JsonResource
             'cancelled_at' => $this->cancelled_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'user' => $this->whenLoaded('user'),
-            'workspace' => $this->whenLoaded('workspace'),
-            'inviter' => $this->whenLoaded('inviter'),
+            'user' => $this->whenLoaded('user', fn () => new UserResource($this->user)),
+            'workspace' => $this->whenLoaded('workspace', fn () => new WorkspaceResource($this->workspace)),
+            'inviter' => $this->whenLoaded('inviter', fn () => new UserResource($this->inviter)),
         ];
     }
 
