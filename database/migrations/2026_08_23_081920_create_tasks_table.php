@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('due_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->unsignedInteger('position')->default(0);
-            $table->unsignedInteger('estimate_minutes')->default(0);
+            $table->unsignedInteger('estimate_minutes')->nullable()->default(0);
             $table->timestamps();
         });
     }
