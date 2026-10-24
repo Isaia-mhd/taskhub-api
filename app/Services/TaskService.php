@@ -159,6 +159,19 @@ class TaskService
         return $this->taskRepo->getAssignees($this->getById($taskId));
     }
 
+    public function getAssignableUsers(string $taskId): Collection
+    {
+        $task = $this->getById($taskId);
+        $workspace = $this->workspaceService->getById($task->workspace_id);
+        $members = $workspace->members()->get();
+
+        if (! $members->contains('id', $workspace->owner_id)) {
+            $members->prepend($workspace->owner);
+        }
+
+        return $members;
+    }
+
     public function assignUser(string $taskId, string $userId): void
     {
         $this->assignUsers($taskId, [$userId]);

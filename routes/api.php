@@ -90,6 +90,7 @@ Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'v1'], function () {
     Route::delete('tasks/{task}/subtasks/{subtask}', [TaskController::class, 'destroySubtask']);
 
     Route::get('tasks/{task}/assignees', [TaskController::class, 'getAssignees']);
+    Route::get('tasks/{task}/assignee-options', [TaskController::class, 'getAssigneeOptions']);
     Route::post('tasks/{task}/assignees', [TaskController::class, 'assignUser']);
     Route::post('tasks/{task}/assignees/bulk', [TaskController::class, 'assignUsers']);
     Route::delete('tasks/{task}/assignees/{user}', [TaskController::class, 'removeAssignee']);

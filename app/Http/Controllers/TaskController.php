@@ -191,6 +191,14 @@ class TaskController extends Controller
         );
     }
 
+    public function getAssigneeOptions(string $task): JsonResponse
+    {
+        return $this->successJson(
+            'Assignable workspace users retrieved successfully.',
+            UserResource::collection($this->taskService->getAssignableUsers($task))
+        );
+    }
+
     public function assignUser(AssignTaskUserRequest $request, string $task): JsonResponse
     {
         $this->taskService->assignUser($task, $request->validated()['user_id']);
