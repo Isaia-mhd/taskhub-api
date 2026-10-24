@@ -114,7 +114,10 @@ class TaskService
             throw new ResourceNotFoundException('Task list not found.');
         }
 
-        $position = $taskList->tasks()->where('id', '!=', $task->id)->count();
+        $position = $taskList->tasks()
+            ->whereNull('parent_id')
+            ->where('id', '!=', $task->id)
+            ->count();
 
         return $this->taskRepo->update($task, ['list_id' => $taskList->id, 'position' => $position]);
     }

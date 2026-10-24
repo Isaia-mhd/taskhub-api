@@ -24,14 +24,21 @@ class TaskResource extends JsonResource
             'completed_at' => $this->completed_at,
             'position' => $this->position,
             'estimate_minutes' => $this->estimate_minutes,
-            'task_list' => $this->whenLoaded('taskList', fn () => [
-                'id' => $this->taskList->id,
-                'name' => $this->taskList->name,
-                'space' => $this->whenLoaded('taskList.space', fn () => [
-                    'id' => $this->taskList->space->id,
-                    'name' => $this->taskList->space->name,
-                ]),
-            ]),
+            'task_list' => $this->whenLoaded('taskList', function () {
+                $taskList = [
+                    'id' => $this->taskList->id,
+                    'name' => $this->taskList->name,
+                ];
+
+                if ($this->taskList->relationLoaded('space') && $this->taskList->space) {
+                    $taskList['space'] = [
+                        'id' => $this->taskList->space->id,
+                        'name' => $this->taskList->space->name,
+                    ];
+                }
+
+                return $taskList;
+            }),
             'status' => $this->whenLoaded('status', fn () => [
                 'id' => $this->status->id,
                 'name' => $this->status->name,
