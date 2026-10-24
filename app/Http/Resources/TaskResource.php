@@ -53,6 +53,11 @@ class TaskResource extends JsonResource
                 'id' => $this->creator->id,
                 'name' => $this->creator->name,
             ]),
+            'assignees' => $this->whenLoaded('assignees', fn () => $this->assignees->map(fn ($assignee) => [
+                'id' => $assignee->id,
+                'name' => $assignee->name,
+                'avatar' => $assignee->avatar,
+            ])),
             'tags' => $this->whenLoaded('tags', fn () => $this->tags->map(fn ($tag) => [
                 'id' => $tag->id,
                 'name' => $tag->name,
