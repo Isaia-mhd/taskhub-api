@@ -114,7 +114,9 @@ class TaskService
             throw new ResourceNotFoundException('Task list not found.');
         }
 
-        return $this->taskRepo->update($task, ['list_id' => $taskList->id]);
+        $position = $taskList->tasks()->where('id', '!=', $task->id)->count();
+
+        return $this->taskRepo->update($task, ['list_id' => $taskList->id, 'position' => $position]);
     }
 
     public function changeStatus(string $taskId, int $statusId): Task
@@ -144,7 +146,9 @@ class TaskService
 
     public function complete(string $taskId): Task
     {
-        return $this->taskRepo->update($this->getById($taskId), ['completed_at' => now()]);
+        $task = $this->getById($taskId);
+
+        return $this->taskRepo->update($task, ['completed_at' => $task->completed_at ? null : now()]);
     }
 
     public function getAssignees(string $taskId): Collection

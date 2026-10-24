@@ -27,6 +27,10 @@ class TaskResource extends JsonResource
             'task_list' => $this->whenLoaded('taskList', fn () => [
                 'id' => $this->taskList->id,
                 'name' => $this->taskList->name,
+                'space' => $this->whenLoaded('taskList.space', fn () => [
+                    'id' => $this->taskList->space->id,
+                    'name' => $this->taskList->space->name,
+                ]),
             ]),
             'status' => $this->whenLoaded('status', fn () => [
                 'id' => $this->status->id,
@@ -42,6 +46,11 @@ class TaskResource extends JsonResource
                 'id' => $this->creator->id,
                 'name' => $this->creator->name,
             ]),
+            'tags' => $this->whenLoaded('tags', fn () => $this->tags->map(fn ($tag) => [
+                'id' => $tag->id,
+                'name' => $tag->name,
+                'color' => $tag->color,
+            ])),
         ];
     }
 }

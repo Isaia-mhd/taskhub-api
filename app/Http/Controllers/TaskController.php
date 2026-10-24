@@ -33,7 +33,7 @@ class TaskController extends Controller
 
         return $this->successJson(
             'Tasks retrieved successfully.',
-            TaskResource::collection($tasks->load(['taskList', 'status', 'priority', 'creator']))
+            TaskResource::collection($tasks->load(['taskList', 'status', 'priority', 'creator', 'tags']))
         );
     }
 
@@ -54,7 +54,7 @@ class TaskController extends Controller
 
         return $this->successJson(
             'Task retrieved successfully.',
-            new TaskResource($task->load(['taskList', 'status', 'priority', 'creator']))
+            new TaskResource($task->load(['taskList.space', 'status', 'priority', 'creator', 'tags']))
         );
     }
 
